@@ -136,7 +136,9 @@ fun MainScreen(navController: NavController, vm: MouseViewModel) {
                         isConnected = isConnected,
                         onClick = {
                             vm.activeMode = if (active) 0 else index + 1
-                            if (!active) vm.addLog("CMD >> ${label.uppercase()}")
+                            if (!active) {
+                                vm.sendSpecialCommand(label.uppercase())
+                            }
                         }
                     )
                 }
@@ -148,7 +150,7 @@ fun MainScreen(navController: NavController, vm: MouseViewModel) {
         Box(modifier = Modifier.align(Alignment.CenterHorizontally)) {
             HCIJoystick(enabled = isConnected) { x, y ->
                 if (abs(x) > 10 || abs(y) > 10 || (x == 0f && y == 0f)) {
-                    vm.addLog("TX >> X:${x.toInt()}, Y:${(y.toInt() * -1)}")
+                    vm.sendJoystickCommand(x, y)
                 }
             }
         }
