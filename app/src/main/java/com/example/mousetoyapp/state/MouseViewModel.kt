@@ -49,6 +49,8 @@ class MouseViewModel(application: Application) : AndroidViewModel(application) {
     private val scanCallback = object : ScanCallback() {
         override fun onScanResult(callbackType: Int, result: ScanResult) {
             val device = result.device
+            val deviceName = device.name ?: result.scanRecord?.deviceName
+
             if (device.name == "MOUSE_ESP32S3") {
                 bluetoothAdapter?.bluetoothLeScanner?.stopScan(this)
                 addLog("GĂSIT: ${device.name}. Se conectează...")
@@ -81,6 +83,12 @@ class MouseViewModel(application: Application) : AndroidViewModel(application) {
                 } else {
                     addLog("ERR: Caracteristica RX lipsă!")
                 }
+            }
+        }
+
+        override fun onReadRemoteRssi(gatt: BluetoothGatt, rssi: Int, status: Int) {
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                this@MouseViewModel.signalStrength = rssi
             }
         }
     }
@@ -148,6 +156,9 @@ class MouseViewModel(application: Application) : AndroidViewModel(application) {
                     disconnect()
                     continue
                 }
+
+                bluetoothGatt?.readRemoteRssi()
+
                 voltage = 3.6f + Random().nextFloat() * 0.3f
                 if (Random().nextInt(10) > 8 && battery > 0) battery--
             }
